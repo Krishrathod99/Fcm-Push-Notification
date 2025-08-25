@@ -12,8 +12,6 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -48,20 +46,21 @@ public class FcmUtils {
     public void initialize() {
         try {
             String credentials = System.getenv(ServiceConstants.FIREBASE_GOOGLE_CREDENTIALS);
-            InputStream serviceAccount = new ByteArrayInputStream(credentials.getBytes());
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options);
-                logger.info(MessageConstants.FIREBASE_APPLICATION_INITIALIZED_SUCCESS);
+            System.out.println(credentials != null ? "Credentials loaded" : "Credentials missing");
+            if (credentials != null && !credentials.isEmpty()) {
+                InputStream serviceAccount = new ByteArrayInputStream(credentials.getBytes());
+                FirebaseOptions options = new FirebaseOptions.Builder()
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .build();
+                if (FirebaseApp.getApps().isEmpty()) {
+                    FirebaseApp.initializeApp(options);
+                    logger.info(MessageConstants.FIREBASE_APPLICATION_INITIALIZED_SUCCESS);
+                }
+                loadFcmTokens();
             }
-            loadFcmTokens();
         } catch (IOException e) {
             logger.error(e.getMessage());
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
