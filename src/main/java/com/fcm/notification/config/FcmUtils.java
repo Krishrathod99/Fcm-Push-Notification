@@ -38,7 +38,7 @@ public class FcmUtils {
      */
     Logger logger = LoggerFactory.getLogger(FcmUtils.class);
 
-    @Value("${app.firebase-configuration-file}")
+    @Value("${GOOGLE_CREDENTIALS}")
     private String firebaseConfigPath;
 
     /**
