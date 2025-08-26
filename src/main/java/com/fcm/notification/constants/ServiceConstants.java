@@ -35,10 +35,8 @@ public class ServiceConstants {
      * The constant FIREBASE_NOTIFICATION_JOB_CONTENT.
      */
     public static final String FIREBASE_NOTIFICATION_JOB_CONTENT = "/schedule.json";
-
     /**
-     * The constant FIREBASE_GOOGLE_CREDENTIALS.
+     * The constant FIREBASE_CONFIGURATION_FILE.
      */
-    public static final String FIREBASE_GOOGLE_CREDENTIALS = "GOOGLE_CREDENTIALS";
-
+    public static final String FIREBASE_CONFIGURATION_FILE = "${app.firebase-configuration-file}";
 }

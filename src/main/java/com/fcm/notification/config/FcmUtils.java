@@ -12,12 +12,12 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -38,6 +38,8 @@ public class FcmUtils {
      */
     Logger logger = LoggerFactory.getLogger(FcmUtils.class);
 
+    @Value(ServiceConstants.FIREBASE_CONFIGURATION_FILE)
+    private String firebaseConfigPath;
 
     /**
      * Initialize.
@@ -45,19 +47,15 @@ public class FcmUtils {
     @PostConstruct
     public void initialize() {
         try {
-            String credentials = System.getenv(ServiceConstants.FIREBASE_GOOGLE_CREDENTIALS);
-            System.out.println(credentials != null ? "Credentials loaded" : "Credentials missing");
-            if (credentials != null && !credentials.isEmpty()) {
-                InputStream serviceAccount = new ByteArrayInputStream(credentials.getBytes());
-                FirebaseOptions options = new FirebaseOptions.Builder()
-                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                        .build();
-                if (FirebaseApp.getApps().isEmpty()) {
-                    FirebaseApp.initializeApp(options);
-                    logger.info(MessageConstants.FIREBASE_APPLICATION_INITIALIZED_SUCCESS);
-                }
-                loadFcmTokens();
+            System.out.println(firebaseConfigPath != null ? "Credentials loaded" : "Credentials missing");
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setCredentials(GoogleCredentials.fromStream(new ClassPathResource(firebaseConfigPath).getInputStream()))
+                    .build();
+            if (FirebaseApp.getApps().isEmpty()) {
+                FirebaseApp.initializeApp(options);
+                logger.info(MessageConstants.FIREBASE_APPLICATION_INITIALIZED_SUCCESS);
             }
+            loadFcmTokens();
         } catch (IOException e) {
             logger.error(e.getMessage());
         } catch (ExecutionException | InterruptedException e) {
