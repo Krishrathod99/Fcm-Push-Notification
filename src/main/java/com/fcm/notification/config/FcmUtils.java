@@ -38,7 +38,7 @@ public class FcmUtils {
      */
     Logger logger = LoggerFactory.getLogger(FcmUtils.class);
 
-    @Value(ServiceConstants.FIREBASE_CONFIGURATION_FILE)
+    @Value("${app.firebase-configuration-file}")
     private String firebaseConfigPath;
 
     /**
