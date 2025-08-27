@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -55,22 +56,27 @@ public class FcmUtils {
                 FirebaseApp.initializeApp(options);
                 logger.info(MessageConstants.FIREBASE_APPLICATION_INITIALIZED_SUCCESS);
             }
-            loadFcmTokens();
         } catch (IOException e) {
             logger.error(e.getMessage());
+        }
+    }
+
+    /**
+     * Load fcm tokens.
+     */
+    @Scheduled(cron = "0 0 0 * * ?", zone = "Asia/Kolkata")
+    public void loadFcmTokens() {
+        logger.info(MessageConstants.FCM_REFRESHING_TOKENS);
+        try {
+            Firestore db = FirestoreClient.getFirestore();
+            ApiFuture<QuerySnapshot> future = db.collection(ServiceConstants.FIREBASE_DB_COLLECTION).get();
+            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+            fcmTokens = documents.stream()
+                    .map(doc -> doc.getString(ServiceConstants.FCM_TOKEN))
+                    .toList();
+            logger.info(MessageConstants.FCM_TOKENS_LOADED);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
-
-    private void loadFcmTokens() throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
-        ApiFuture<QuerySnapshot> future = db.collection(ServiceConstants.FIREBASE_DB_COLLECTION).get();
-        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-        fcmTokens = documents.stream()
-                .map(doc -> doc.getString(ServiceConstants.FCM_TOKEN))
-                .toList();
-    }
-
-
 }
