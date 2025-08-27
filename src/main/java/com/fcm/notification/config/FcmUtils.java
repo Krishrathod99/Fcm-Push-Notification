@@ -32,7 +32,7 @@ public class FcmUtils {
     /**
      * The Fcm tokens.
      */
-    public List<String> fcmTokens = new ArrayList<>();
+    public final List<String> fcmTokens = new ArrayList<>();
 
     /**
      * The Logger.
@@ -56,6 +56,7 @@ public class FcmUtils {
                 FirebaseApp.initializeApp(options);
                 logger.info(MessageConstants.FIREBASE_APPLICATION_INITIALIZED_SUCCESS);
             }
+            loadFcmTokens();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
@@ -71,12 +72,22 @@ public class FcmUtils {
             Firestore db = FirestoreClient.getFirestore();
             ApiFuture<QuerySnapshot> future = db.collection(ServiceConstants.FIREBASE_DB_COLLECTION).get();
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-            fcmTokens = documents.stream()
+            List<String> tokens = documents.stream()
                     .map(doc -> doc.getString(ServiceConstants.FCM_TOKEN))
                     .toList();
+            fcmTokens.addAll(tokens);
             logger.info(MessageConstants.FCM_TOKENS_LOADED);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Gets fcm tokens.
+     *
+     * @return the fcm tokens
+     */
+    public List<String> getFcmTokens() {
+        return fcmTokens;
     }
 }

@@ -27,6 +27,11 @@ public class MessageConstants {
     public static final String FCM_NOTIFICATION_SENT_SUCCESS = "Notifications sent: ";
 
     /**
+     * The constant FCM_TOKENS_NOT_FOUND.
+     */
+    public static final String FCM_TOKENS_NOT_FOUND = "No FCM tokens available";
+
+    /**
      * The constant FCM_REFRESHING_TOKENS.
      */
     public static final String FCM_REFRESHING_TOKENS = "Refreshing FCM tokens at midnight...";

@@ -6,6 +6,8 @@ import com.fcm.notification.config.FcmUtils;
 import com.fcm.notification.constants.MessageConstants;
 import com.fcm.notification.constants.ServiceConstants;
 import com.fcm.notification.payload.NotificationJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -32,6 +34,10 @@ public class JobInitializer implements ApplicationRunner {
         this.fcmUtils = fcmUtils;
         this.scheduler = scheduler;
     }
+    /**
+     * The Logger.
+     */
+    Logger logger = LoggerFactory.getLogger(JobInitializer.class);
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -39,7 +45,11 @@ public class JobInitializer implements ApplicationRunner {
         InputStream in = getClass().getResourceAsStream(ServiceConstants.FIREBASE_NOTIFICATION_JOB_CONTENT);
         List<NotificationJob> jobs = objectMapper.readValue(in, new TypeReference<List<NotificationJob>>() {
         });
-        List<String> tokens = fcmUtils.fcmTokens;
+        List<String> tokens = fcmUtils.getFcmTokens();
+        if (tokens == null || tokens.isEmpty()) {
+            logger.error(MessageConstants.FCM_TOKENS_NOT_FOUND);
+            return;
+        }
 
         int i = 1;
         for (NotificationJob job : jobs) {
